@@ -1,1 +1,1 @@
-# case_gb_2
+# Engenharia de dados - Case GB 2
