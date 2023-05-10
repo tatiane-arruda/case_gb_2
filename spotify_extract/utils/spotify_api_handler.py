@@ -9,11 +9,13 @@ secret='391ff44f0d2749b79b7e344c90fde28a'
 sp_client = spotify.Client(cid, secret)
 
 def authenticate():
+    '''Make an API request to Spotify API 
+    and returns an access token for authentication'''
+
     sp_clients_creds=f"{cid}:{secret}"
     sp_clients_creds_b64=base64.b64encode(sp_clients_creds.encode())
 
     token_url="https://accounts.spotify.com/api/token"
-    #method="POST"
 
     token_data = {
         "grant_type": "client_credentials"
@@ -26,13 +28,14 @@ def authenticate():
     req = requests.post(token_url, data=token_data, headers=token_headers)
     token_response_data = req.json()
     access_token=token_response_data["access_token"]
-    print(access_token)
+    # print(access_token)
 
     return access_token
 
 
 def get_podcasts_data(URI,search, type, market, offset, limit):
-    '''Make an API request to Spotify API and returns a pandas dataframe'''
+    '''Make an API request to Spotify API 
+    and returns a pandas dataframe'''
     
     id=[]
     name=[]
@@ -66,12 +69,15 @@ def get_podcasts_data(URI,search, type, market, offset, limit):
     df['id']=id 
     df['total_episodes']=total_episodes
 
-    #print(df)
+    n_rows = len(df)
+    print(f"Created a dataframe with {n_rows} rows")
 
     return df 
 
 def get_episodes_data(URI,show_id,market, offset, limit):
-    '''Make an API request to Spotify API and returns a pandas dataframe'''
+    '''Make an API request to Spotify API 
+    to get all episodes from a podcast 
+    and returns a pandas dataframe'''
     
     id=[]
     name=[]
@@ -96,8 +102,6 @@ def get_episodes_data(URI,show_id,market, offset, limit):
 
     json_res = response.json()
 
-
-
     for el in range(len(json_res['items'])):
         id.append(json_res['items'][el]['id'])
         name.append(json_res['items'][el]['name'])
@@ -120,8 +124,17 @@ def get_episodes_data(URI,show_id,market, offset, limit):
     df['explicit']=explicit 
     df['type']=type  
 
-    print(df)
+    n_rows = len(df)
+    print(f"Created a dataframe with {n_rows} rows")
 
     return df 
 
+def filter_episodes(df, query):
 
+    '''Filter a pandas dataframe by column value'''
+    filtered_df = df.loc[df['name'].str.contains(query, case=False)] 
+    
+    n_rows = len(filtered_df)
+    print(f"Created a dataframe with {n_rows} rows")
+
+    return filtered_df

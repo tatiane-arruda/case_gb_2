@@ -5,7 +5,7 @@ from google.cloud import bigquery
 client=bigquery.Client()
 
 def read_data_to_df(query):
-    '''Executes a query and returns a pandas dataframe'''
+    '''Executes a query in BigQuery table and returns a pandas dataframe'''
     res = client.query(query)
 
     df = res.to_dataframe()

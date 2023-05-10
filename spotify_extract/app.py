@@ -1,9 +1,8 @@
 from google.cloud import bigquery
-from utils.bigquery_handler import read_data_to_df, load_data_from_df
-from utils.spotify_api_handler import get_podcasts_data, get_episodes_data
-from dotenv import load_dotenv
+from utils.bigquery_handler import load_data_from_df
+from utils.spotify_api_handler import get_podcasts_data, get_episodes_data, filter_episodes
 
-load_dotenv()
+
 
 # Initialize params  
 SPOTIFY_SEARCH_URI ="https://api.spotify.com/v1/search"
@@ -14,10 +13,10 @@ OFFSET="0"
 LIMIT="50"
 
 SPOTIFY_SHOW_URI ="https://api.spotify.com/v1/shows"  
-ID="1oMIHOXsrLFENAeM743g93" # Data Hackers https://open.spotify.com/show/1oMIHOXsrLFENAeM743g93?si=eb986ffafa204bd6
+SHOW_ID="1oMIHOXsrLFENAeM743g93" # Data Hackers https://open.spotify.com/show/1oMIHOXsrLFENAeM743g93?si=eb986ffafa204bd6
 
-TABLE_PODCASTS_ID='case-gb-2.spotify_data.podcast' # table_id=f"{PROJECT_ID}.{bg_dataset}.{table_name}"
-TABLE_DATA_HACKERS_GB='case-gb-2.spotify_data.data_hackers_gb'
+TABLE_PODCASTS_ID='case-gb-2.spotify_data.podcast' # table_id=f"{project_id}.{dataset_id}.{table_name}"
+TABLE_DATA_HACKERS_GB='case-gb-2.spotify_data.data_hackers_eps_gb'
 TABLE_DATA_HACKERS='case-gb-2.spotify_data.data_hackers_eps'
 
 SCHEMA_PODCASTS=[
@@ -39,24 +38,16 @@ SCHEMA_DATA_HACKERS=[
 ]
 
 ################### Get first 50 results of query search "Data Hackers"
-
 podcast_df = get_podcasts_data(SPOTIFY_SEARCH_URI, QUERY, TYPE, MARKET, OFFSET, LIMIT)
 
-################### Get Data Hackers Episodes
+################### Get All Data Hackers Episodes
+eps_podcast_df = get_episodes_data(SPOTIFY_SHOW_URI, SHOW_ID, MARKET, OFFSET,LIMIT)
 
-eps_podcast_df = get_episodes_data(SPOTIFY_SHOW_URI, ID, MARKET, OFFSET,LIMIT)
+################### Get All Data Hackers Episodes with Grupo Boticário
+filtered_gb_df=filter_episodes(eps_podcast_df, "Grupo Boticário")
 
 
-
+# Load data into BigQuery 
 load_data_from_df(TABLE_PODCASTS_ID, podcast_df, SCHEMA_PODCASTS)
-# load_data_from_df(TABLE_DATA_HACKERS, eps_podcast_df, SCHEMA_DATA_HACKERS)
-
-
-
-pod_query="""
-    SELECT * 
-    FROM spotify_data.data_hackers_eps
-    LIMIT 10
-"""
-
-read_data_to_df(pod_query)
+load_data_from_df(TABLE_DATA_HACKERS, eps_podcast_df, SCHEMA_DATA_HACKERS)
+load_data_from_df(TABLE_DATA_HACKERS_GB, filtered_gb_df, SCHEMA_DATA_HACKERS)
