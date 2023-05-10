@@ -3,8 +3,9 @@ import requests
 import base64
 import pandas as pd
 
-cid='73592f8546db4e31ba2ccf2d809c45ad'
-secret='391ff44f0d2749b79b7e344c90fde28a'
+# Update with valid Spotify Credentials 
+cid=''
+secret=''
 
 sp_client = spotify.Client(cid, secret)
 
