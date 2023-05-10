@@ -16,8 +16,8 @@ def read_data_to_df(query):
 def load_data_from_df(table_id, df, schema):
     '''Gets a pandas dataframe and loads the data into BigQuery table'''
     job_config = bigquery.LoadJobConfig(
-       schema,
-        write_disposition="WRITE_TRUNCATE", # replaces data
+        schema=schema,
+        write_disposition="WRITE_TRUNCATE" # replaces data
     )
 
     job = client.load_table_from_dataframe(
